@@ -1,0 +1,105 @@
+- name:               Get Tenant, App Profile and EPG for host IP address Playbook
+  hosts:              "local"
+  connection:         local
+  vars:
+    token_url:  "https://{{ IP }}/irisservices/api/v1/public/accessTokens"
+    epoch_day: 86400000
+
+  tasks:
+    - name: Generate Token
+      uri:
+        url: "{{ token_url }}"
+        method: POST
+        body_format: json
+        body:
+          domain: "LOCAL"
+          password: "{{ password }}"
+          username: "{{ username }}"
+        status_code: 201
+        validate_certs: no
+      register: auth_resp
+
+    - name: DEBUG | output auth_resp
+      debug:
+        var=auth_resp
+
+    - name:
+      set_fact:
+        auth_token: "{{ auth_resp.json.accessToken }}"
+        token_type: "{{ auth_resp.json.tokenType }}"
+
+    - name: DEBUG | output auth_token
+      debug:
+        var=auth_token
+
+    - name: Get EPOCH MS time
+      set_fact:
+        epoch: "{{ ansible_date_time.epoch|int * 1000 }}"
+
+    - name: DEBUG | output epoch
+      debug:
+        var=epoch
+
+    - name: Get yesterday EPOCH
+      set_fact:
+        yest_epoch="{{ epoch | int - epoch_day | int }}"
+        auth="{{token_type}} {{auth_token}}"
+
+    - name: DEBUG | output yest_epoch
+      debug:
+        var=yest_epoch
+
+    - name: Setting fact for backup runs
+      set_fact:
+        backups_url: "https://{{IP}}/irisservices/api/v1/backupjobruns?startTimeUsecs={{yest_epoch}}&endTimeUsecs={{epoch}}epoc"
+
+    - name: Get protection jobs backup runs
+      shell: 'curl -k -H "Authorization: {{token_type}} {{auth_token}}" {{backups_url}}'
+      args:
+        warn: false
+      register: job_output
+
+    - name: Setting json fact
+      set_fact:
+        resp_json: "{{job_output.stdout | from_json }}"
+
+    - name: Setting public status
+      set_fact:
+        publicStatus="{{ item }}"
+      with_items: "{{ resp_json | json_query('[*].backupJobRuns.protectionRuns[0].backupRun.base.publicStatus') | list }}"
+      register: pubStatusList
+
+    - name: Setting job name
+      set_fact:
+        jobName="{{ item }}"
+      with_items: "{{ resp_json | json_query('[*].backupJobRuns.jobDescription.name') | list }}"
+      register: jobNameList
+
+    - name: Setting job id
+      set_fact:
+        jobID="{{ item }}"
+      with_items: "{{ resp_json | json_query('[*].backupJobRuns.jobDescription.jobId') | list }}"
+      register: jobIdList
+
+    - name: Printing public status and name
+      debug:
+        msg: "{{item.1.ansible_facts.jobName}} : {{item.0.ansible_facts.publicStatus}} - {{item.2.ansible_facts.jobID}}"
+      loop: "{{ pubStatusList.results|zip(jobNameList.results,jobIdList.results)|list }}"
+
+    - name: Printing to teams
+      cisco_spark:
+        personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
+        recipient_type: roomId
+        recipient_id: "Y2lzY29zcGFyazovL3VzL1JPT00vYmQ1OWEyNDAtMjg3YS0xMWU5LTgwOTItN2YwZmZmMGU0Mjg1"
+        message_type: text
+        message: "Cohesity Backup Results: (Name : Pass/Fail : Link)"
+      run_once: true
+
+    - name: Printing to teams
+      cisco_spark:
+        personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
+        recipient_type: roomId
+        recipient_id: "Y2lzY29zcGFyazovL3VzL1JPT00vYmQ1OWEyNDAtMjg3YS0xMWU5LTgwOTItN2YwZmZmMGU0Mjg1"
+        message_type: markdown
+        message: "{{item.1.ansible_facts.jobName}} : {{item.0.ansible_facts.publicStatus}} - [here](https://{{IP}}/protection/job/{{item.2.ansible_facts.jobID}}/details)"
+      loop: "{{ pubStatusList.results|zip(jobNameList.results,jobIdList.results)|list }}"
