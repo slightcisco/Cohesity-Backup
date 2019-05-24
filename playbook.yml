@@ -12,12 +12,17 @@
         url: "{{ token_url }}"
         method: POST
         body_format: json
+        headers:
+          Content-Type: application/json
+          Accept: application/json
         body:
           domain: "LOCAL"
           password: "{{ password }}"
           username: "{{ username }}"
         status_code: 201
         validate_certs: no
+        url_username: "{{ username }}"
+        url_password: "{{ password }}"
       register: auth_resp
 
     - name: DEBUG | output auth_resp
