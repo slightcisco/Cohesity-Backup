@@ -6,8 +6,6 @@
     epoch_day: 86400000
 
   tasks:
-    - name: Ping Cohesity
-      shell: ping 10.52.249.118
 
     - name: Generate Token
       uri:
