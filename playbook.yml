@@ -7,8 +7,7 @@
 
   tasks:
     - name: Ping Cohesity
-      net_ping:
-        dest: 10.52.249.118
+      shell: ping 10.52.249.118
 
     - name: Generate Token
       uri:
