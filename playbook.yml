@@ -67,7 +67,7 @@
 
     - name: Debug job_output
       debug:
-        var: job_output.stdout
+        var: job_output
 
     - name: Setting json fact
       set_fact:
