@@ -4,6 +4,7 @@
   vars:
     token_url:  "https://{{IP}}/irisservices/api/v1/public/accessTokens"
     epoch_day: 86400000
+    Return_Room: DEFAULT_VALUE
 
   tasks:
 
@@ -100,7 +101,7 @@
       cisco_spark:
         personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
         recipient_type: roomId
-        recipient_id: "Y2lzY29zcGFyazovL3VzL1JPT00vYmQ1OWEyNDAtMjg3YS0xMWU5LTgwOTItN2YwZmZmMGU0Mjg1"
+        recipient_id: "{{Return_Room}}"
         message_type: text
         message: "Cohesity Backup Results: (Name : Pass/Fail : Link)"
       run_once: true
@@ -109,7 +110,7 @@
       cisco_spark:
         personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
         recipient_type: roomId
-        recipient_id: "Y2lzY29zcGFyazovL3VzL1JPT00vYmQ1OWEyNDAtMjg3YS0xMWU5LTgwOTItN2YwZmZmMGU0Mjg1"
+        recipient_id: "{{Return_Room}}"
         message_type: markdown
         message: "{{item.1.ansible_facts.jobName}} : {{item.0.ansible_facts.publicStatus}} - [here](https://{{IP}}/protection/job/{{item.2.ansible_facts.jobID}}/details)"
       loop: "{{ pubStatusList.results|zip(jobNameList.results,jobIdList.results)|list }}"
