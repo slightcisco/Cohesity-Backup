@@ -65,6 +65,10 @@
         warn: false
       register: job_output
 
+    - name: Debug job_output
+      debug:
+        var: job_output.stdout
+
     - name: Setting json fact
       set_fact:
         resp_json: "{{job_output.stdout | from_json }}"
