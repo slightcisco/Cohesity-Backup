@@ -2,7 +2,7 @@
   hosts:              "local"
   connection:         local
   vars:
-    token_url:  "https://cohesity.uktme.cisco.com/irisservices/api/v1/public/accessTokens"
+    token_url:  "https://{{IP}}/irisservices/api/v1/public/accessTokens"
     epoch_day: 86400000
 
   tasks:
