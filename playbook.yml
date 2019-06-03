@@ -24,6 +24,7 @@
         validate_certs: no
         url_username: "{{ username }}"
         url_password: "{{ password }}"
+        bot_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
       register: auth_resp
 
     - name: DEBUG | output auth_resp
@@ -99,7 +100,7 @@
 
     - name: Printing to teams
       cisco_spark:
-        personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
+        personal_token: "{{bot_token}}"
         recipient_type: roomId
         recipient_id: "{{Return_Room}}"
         message_type: text
@@ -108,7 +109,7 @@
 
     - name: Printing to teams
       cisco_spark:
-        personal_token: "ZmYwMjRmYjEtNWM4ZC00NGQ0LTk3NmMtNTZhZDE1ZmM0OTc4ZDEzMTk4OWUtMDhj_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f"
+        personal_token: "{{bot_token}}"
         recipient_type: roomId
         recipient_id: "{{Return_Room}}"
         message_type: markdown
