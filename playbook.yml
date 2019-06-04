@@ -113,5 +113,5 @@
         recipient_type: roomId
         recipient_id: "{{Return_Room}}"
         message_type: markdown
-        message: "{{item.1.ansible_facts.jobName}} : {{item.0.ansible_facts.publicStatus}} - [here](https://{{IP}}/protection/job/{{item.2.ansible_facts.jobID}}/details)"
+        message: "{{item.1.ansible_facts.jobName}} : {{item.0.ansible_facts.publicStatus | regex_replace(^.(.*)$)}} - [here](https://{{IP}}/protection/job/{{item.2.ansible_facts.jobID}}/details)"
       loop: "{{ pubStatusList.results|zip(jobNameList.results,jobIdList.results)|list }}"
